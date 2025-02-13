@@ -4,4 +4,4 @@
 
 + Basic: Love2d
 
-+ Library: UI2D
++ Library: Slab - [Github](https://github.com/flamendless/Slab.git)
