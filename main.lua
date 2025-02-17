@@ -1,4 +1,7 @@
 Slab = require("Slab")
+node = require("entity.node")
+
+local nodes = {}
 
 function love.load(args)
 	Slab.Initialize(args)
@@ -6,6 +9,8 @@ function love.load(args)
 	local font = love.graphics.newFont("assets/Deng.ttf", 16)
 	local Style = Slab.GetStyle()
 	Style.API.PushFont(font)
+
+	table.insert(nodes, node:new("rect", "Node"))
 end
 
 local windows = {
@@ -22,6 +27,19 @@ function love.update( dt )
 end
 
 function love.draw()
-    love.graphics.clear( .1, .1, .1 )
+    love.graphics.clear( .16, .16, .16 )
+	-- 绘制图形
+	local w, h = love.graphics.getDimensions()
+	local font = love.graphics.getFont()
+	for index, value in ipairs(nodes) do
+		value:draw(w, h, font)
+	end
+	-- 绘制界面
     Slab.Draw()
+end
+
+function love.mousemoved( x, y, dx, dy, istouch )
+	for index, value in ipairs(nodes) do
+		value:mousemoved(x, y, dx, dy, istouch)
+	end
 end
