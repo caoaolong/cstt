@@ -65,9 +65,11 @@ function love.mousemoved( x, y, dx, dy, istouch )
 	if cursor.state == "pressed" then
 		cursor.moveCamera(dx, dy)
 	end
-
+	local cameraX, cameraY = cursor.camera()
+	local scaleX, scaleY = cursor.zoom()
+	local logx, logy = (x - cameraX) / scaleX, (y - cameraY) / scaleY
 	for index, value in ipairs(nodes) do
-		value:mousemoved(x, y, dx, dy, istouch)
+		value:mousemoved(logx, logy, dx, dy, istouch)
 	end
 end
 
