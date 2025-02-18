@@ -1,3 +1,4 @@
+cursor = require("entity.cursor")
 menu = {}
 
 local function projectMenu()
@@ -39,6 +40,10 @@ local function viewMenu(windows)
                     value.Show = true
                 end
             end
+        end
+        Slab.Separator()
+        if Slab.MenuItem("重置视图") then
+            cursor.reset()
         end
         Slab.EndMenu()
     end

@@ -1,5 +1,6 @@
 Slab = require("Slab")
 node = require("entity.node")
+cursor = require("entity.cursor")
 
 local nodes = {}
 
@@ -29,6 +30,9 @@ end
 
 function love.draw()
     love.graphics.clear( .16, .16, .16 )
+	-- 视图操作
+	love.graphics.translate(cursor.camera())
+	love.graphics.scale(cursor.zoom())
 	-- 绘制图形
 	local w, h = love.graphics.getDimensions()
 	local font = love.graphics.getFont()
@@ -39,19 +43,49 @@ function love.draw()
     Slab.Draw()
 end
 
+function love.keypressed( key, scancode, isrepeat )
+    if key == "space" then
+		cursor.handing = true
+	end
+end
+
+function love.keyreleased( key, scancode, isrepeat )
+    if key == "space" then
+		cursor.handing = false
+	end
+end
+
+function love.wheelmoved(x, y)
+    if cursor.handing then
+		cursor.scaleCamera(y)
+	end
+end
+
 function love.mousemoved( x, y, dx, dy, istouch )
+	if cursor.state == "pressed" then
+		cursor.moveCamera(dx, dy)
+	end
+
 	for index, value in ipairs(nodes) do
 		value:mousemoved(x, y, dx, dy, istouch)
 	end
 end
 
 function love.mousepressed( x, y, button, istouch, presses )
+	if button == 1 and cursor.handing then
+		cursor.state = "pressed"
+	end
+	
 	for index, value in ipairs(nodes) do
 		value:mousepressed(x, y, button, istouch, presses)
 	end
 end
 
 function love.mousereleased( x, y, button, istouch, presses )
+	if button == 1 then
+		cursor.state = "normal"
+	end
+	
 	for index, value in ipairs(nodes) do
 		value:mousereleased(x, y, button, istouch, presses)
 	end

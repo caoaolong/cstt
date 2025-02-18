@@ -110,7 +110,6 @@ function node:stateCreated(w, h, font)
     self:setColor("bg", colors.xD80073)
     self.border = false
     self.cx, self.cy = self.ox, self.oy
-    
 end
 
 function node:stateEntered(w, h, font)
