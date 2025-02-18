@@ -10,6 +10,7 @@ function love.load(args)
 	local Style = Slab.GetStyle()
 	Style.API.PushFont(font)
 
+	love.graphics.setFont(font)
 	table.insert(nodes, node:new("rect", "Node"))
 end
 
@@ -41,5 +42,17 @@ end
 function love.mousemoved( x, y, dx, dy, istouch )
 	for index, value in ipairs(nodes) do
 		value:mousemoved(x, y, dx, dy, istouch)
+	end
+end
+
+function love.mousepressed( x, y, button, istouch, presses )
+	for index, value in ipairs(nodes) do
+		value:mousepressed(x, y, button, istouch, presses)
+	end
+end
+
+function love.mousereleased( x, y, button, istouch, presses )
+	for index, value in ipairs(nodes) do
+		value:mousereleased(x, y, button, istouch, presses)
 	end
 end
