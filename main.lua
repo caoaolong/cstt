@@ -12,7 +12,10 @@ function love.load(args)
 	Style.API.PushFont(font)
 
 	love.graphics.setFont(font)
-	table.insert(nodes, node:new("rect", "Node"))
+	table.insert(nodes, node:new("rect", "Node1"))
+	table.insert(nodes, node:new("rect", "Node2", 300, 400))
+
+	cursor.load(nodes)
 end
 
 local windows = {
@@ -44,13 +47,15 @@ function love.draw()
 end
 
 function love.keypressed( key, scancode, isrepeat )
-    if key == "space" then
+    if key == "lctrl" then
 		cursor.handing = true
+	elseif key == "r" then
+		cursor.reset()
 	end
 end
 
 function love.keyreleased( key, scancode, isrepeat )
-    if key == "space" then
+    if key == "lctrl" then
 		cursor.handing = false
 	end
 end
@@ -68,6 +73,9 @@ function love.mousemoved( x, y, dx, dy, istouch )
 	local cameraX, cameraY = cursor.camera()
 	local scaleX, scaleY = cursor.zoom()
 	local logx, logy = (x - cameraX) / scaleX, (y - cameraY) / scaleY
+
+	cursor.mousemoved(logx, logy, dx, dy, istouch)
+
 	for index, value in ipairs(nodes) do
 		value:mousemoved(logx, logy, dx, dy, istouch)
 	end

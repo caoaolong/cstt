@@ -1,4 +1,5 @@
 Slab = require("Slab")
+cursor = require("entity.cursor")
 local colors = {
     xD80073 = {.84, 0, .44}, 
     xED007E = {.92, 0, .49},
@@ -31,6 +32,9 @@ node = {
     -- 弹出菜单
     menu = {
         { ID = "Reset", Label = "重置" },
+        { ID = "Separator" },
+        { ID = "Top", Label = "前置" },
+        { ID = "Bottom", Label = "后置" }
     },
     -- 是否显示菜单
     showMenu = false
@@ -38,13 +42,17 @@ node = {
 node.__index = node
 
 -- shape: rect, circle
-function node:new(shape, label)
+function node:new(shape, label, ox, oy)
     local font = love.graphics.getFont()
     local w, h = love.graphics.getDimensions()
     local tw, th = font:getWidth(label), font:getHeight(label)
-    local nw, nh = tw + node.paddingX * 2, th + node.paddingY * 2
-    local tx, ty = (w - tw) / 2, (h - th) / 2
-    local ox, oy = (w - nw) / 2, (h - nh) / 2
+    nw, nh = tw + node.paddingX * 2, th + node.paddingY * 2
+    if ox == nil or oy == nil then
+        tx, ty = (w - tw) / 2, (h - th) / 2
+        ox, oy = (w - nw) / 2, (h - nh) / 2
+    else
+        tx, ty = ox + node.paddingX, oy + node.paddingY
+    end
     local object = setmetatable({
         shape = shape, label = label,
         tw = tw, th = th, w = nw, h = nh, tx = tx, ty = ty, ox = ox, oy = oy,
@@ -63,6 +71,10 @@ function node:action(id)
         self.tx, self.ty = (w - self.tw) / 2, (h - self.th) / 2
         self.ox, self.oy = (w - self.w) / 2, (h - self.h) / 2
         self.state = "created"
+    elseif id == "Top" then
+        cursor.putTop(self)
+    elseif id == "Bottom" then
+        cursor.putBottom(self)
     end
 end
 
@@ -97,8 +109,12 @@ function node:draw(w, h, font)
     if self.showMenu then
         if Slab.BeginContextMenuWindow() then
             for index, value in ipairs(self.menu) do
-                if Slab.MenuItem(value.Label) then
-                    self:action(value.ID)
+                if value.ID == "Separator" then
+                    Slab.Separator()
+                else
+                    if Slab.MenuItem(value.Label) then
+                        self:action(value.ID)
+                    end
                 end
             end
             Slab.EndContextMenu()
@@ -123,33 +139,32 @@ function node:stateDragging(w, h, font)
 end
 
 function node:mousemoved(x, y, dx, dy, istouch)
-    
-    if self.state == "dragging" then
-        self.cx, self.cy = self.cx + dx, self.cy + dy
-        self.tx, self.ty = self.cx + self.paddingX, self.cy + self.paddingY
+    if cursor.picked ~= nil then
         return
     end
-
     if x >= self.cx and x <= self.cx + self.w and y >= self.cy and y <= self.cy + self.h then
-        self.state = "entered"
+        cursor.handOn(self)
     else
-        self.state = "created"
+        cursor.handOff(self)
     end
 end
 
 function node:mousepressed(x, y, button, istouch, presses)
-    if self.state == "entered" then
-        if button == 1 then
-            self.state = "dragging"
-        elseif button == 2 then
-            self.showMenu = true
-        end
+    if cursor.picked ~= nil then
+        return
+    end
+    if self.state == "entered" and button == 1 then
+        cursor.pickUp(self)
+        return
+    end
+    if self.state == "entered" and button == 2 then
+        self.showMenu = true
     end
 end
 
 function node:mousereleased(x, y, button, istouch, presses)
     if self.state == "dragging" then
-        self.state = "entered"
+        cursor.putDown()
         if self.draggable then
             self.ox, self.oy = self.cx, self.cy
         end
