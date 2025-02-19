@@ -49,10 +49,21 @@ function cursor.moveCamera(dx, dy)
     cursor.cameraY = cursor.cameraY + dy
 end
 
-function cursor.scaleCamera(d)
-    cursor.scale = cursor.scale + d * 0.1
-    cursor.cameraX = cursor.cameraX + d * 0.05
-    cursor.cameraY = cursor.cameraY + d * 0.05
+function cursor.scaleCamera(x, y)
+    -- 获取鼠标位置
+    local mx, my = love.mouse.getPosition()
+    -- 计算鼠标在世界坐标中的位置
+    local worldX, worldY = love.graphics.inverseTransformPoint(mx, my)
+    -- 更新缩放比例
+    local zoomFactor = 1.1
+    if y > 0 then
+        cursor.scale = cursor.scale * zoomFactor
+    elseif y < 0 then
+        cursor.scale = cursor.scale / zoomFactor
+    end
+    -- 计算新的偏移，使鼠标位置在缩放后保持不变
+    cursor.cameraX = mx - worldX * cursor.scale
+    cursor.cameraY = my - worldY * cursor.scale
 end
 
 function cursor.zoom()
@@ -83,7 +94,7 @@ end
 
 function cursor.handOn(node)
     if cursor.handed ~= nil then
-        return
+        cursor.handed.state = "created"
     end
     node.state = "entered"
     cursor.handed = node

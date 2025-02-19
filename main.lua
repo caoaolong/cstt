@@ -62,7 +62,7 @@ end
 
 function love.wheelmoved(x, y)
     if cursor.handing then
-		cursor.scaleCamera(y)
+		cursor.scaleCamera(x, y)
 	end
 end
 
