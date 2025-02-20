@@ -55,11 +55,11 @@ function cursor.scaleCamera(x, y)
     -- 计算鼠标在世界坐标中的位置
     local worldX, worldY = love.graphics.inverseTransformPoint(mx, my)
     -- 更新缩放比例
-    local zoomFactor = 1.1
+    local zoomFactor = 0.1
     if y > 0 then
-        cursor.scale = cursor.scale * zoomFactor
+        cursor.scale = cursor.scale + zoomFactor
     elseif y < 0 then
-        cursor.scale = cursor.scale / zoomFactor
+        cursor.scale = cursor.scale - zoomFactor
     end
     -- 计算新的偏移，使鼠标位置在缩放后保持不变
     cursor.cameraX = mx - worldX * cursor.scale
