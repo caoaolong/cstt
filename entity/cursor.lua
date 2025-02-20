@@ -45,8 +45,8 @@ function cursor.putBottom(node)
 end
 
 function cursor.moveCamera(dx, dy)
-    cursor.cameraX = cursor.cameraX + dx
-    cursor.cameraY = cursor.cameraY + dy
+    cursor.cameraX = cursor.cameraX + dx / cursor.scale
+    cursor.cameraY = cursor.cameraY + dy / cursor.scale
 end
 
 function cursor.scaleCamera(x, y)
@@ -93,6 +93,9 @@ function cursor.putDown()
 end
 
 function cursor.handOn(node)
+    if cursor.handing then
+        return
+    end
     if cursor.handed ~= nil then
         cursor.handed.state = "created"
     end
@@ -113,7 +116,7 @@ function cursor.mousemoved(x, y, dx, dy, istouch)
     end
     local node = cursor.picked
     if node.state == "dragging" then
-        node.cx, node.cy = node.cx + dx, node.cy + dy
+        node.cx, node.cy = node.cx + dx / cursor.scale, node.cy + dy / cursor.scale
         node.tx, node.ty = node.cx + node.paddingX, node.cy + node.paddingY
     end
 end

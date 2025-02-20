@@ -4,6 +4,10 @@ cursor = require("entity.cursor")
 
 local nodes = {}
 
+local uiMenu = require("ui.menu")
+local uiWindow = require("ui.window")
+local uiMesh = require("ui.mesh")
+
 function love.load(args)
 	Slab.Initialize(args)
 	Slab.DisableDocks({"Left", "Right", "Bottom"})
@@ -12,9 +16,10 @@ function love.load(args)
 	Style.API.PushFont(font)
 
 	love.graphics.setFont(font)
-	table.insert(nodes, node:new("rect", "Node1"))
+	table.insert(nodes, node:new("rect", "Node1", 0, 0))
 	table.insert(nodes, node:new("rect", "Node2", 300, 400))
 
+	uiMesh.init()
 	cursor.load(nodes)
 end
 
@@ -23,16 +28,20 @@ local windows = {
 	{ Title = "大纲", Show = false, ID = "outline" }
 }
 
-local uiMenu = require("ui.menu")
-local uiWindow = require("ui.window")
+local components = {
+	{ Title = "网格", Comp = uiMesh }
+}
+
 function love.update( dt )
 	Slab.Update(dt)
-	uiMenu.draw(windows)
+	uiMenu.draw(windows, components)
 	uiWindow.draw(windows)
 end
 
 function love.draw()
     love.graphics.clear( .16, .16, .16 )
+	-- 绘制网格
+	uiMesh.draw()
 	-- 视图操作
 	love.graphics.translate(cursor.camera())
 	love.graphics.scale(cursor.zoom())
@@ -68,12 +77,10 @@ end
 
 function love.mousemoved( x, y, dx, dy, istouch )
 	if cursor.state == "pressed" then
-		cursor.moveCamera(dx, dy)
+		cursor.moveCamera(dx, dy, mesh)
 	end
-	local cameraX, cameraY = cursor.camera()
-	local scaleX, scaleY = cursor.zoom()
-	local logx, logy = (x - cameraX) / scaleX, (y - cameraY) / scaleY
 
+	local logx, logy = love.graphics.inverseTransformPoint(x, y)
 	cursor.mousemoved(logx, logy, dx, dy, istouch)
 
 	for index, value in ipairs(nodes) do

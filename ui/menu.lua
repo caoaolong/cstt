@@ -27,10 +27,9 @@ local function projectMenu()
     end
 end
 
-local function viewMenu(windows)
+local function viewMenu(windows, components)
     if Slab.BeginMenu("视图") then
         for index, value in ipairs(windows) do
-            local item = nil
             if value.Show then
                 if Slab.MenuItem("√ " .. value.Title) then
                     value.Show = false
@@ -38,6 +37,18 @@ local function viewMenu(windows)
             else
                 if Slab.MenuItem("  " .. value.Title) then
                     value.Show = true
+                end
+            end
+        end
+        Slab.Separator()
+        for index, value in ipairs(components) do
+            if value.Comp.show then
+                if Slab.MenuItem("√ " .. value.Title) then
+                    value.Comp.show = false
+                end
+            else
+                if Slab.MenuItem("  " .. value.Title) then
+                    value.Comp.show = true
                 end
             end
         end
@@ -69,10 +80,10 @@ local function componentMenu()
     end
 end
 
-function menu.draw(windows)
+function menu.draw(windows, components)
     if Slab.BeginMainMenuBar() then
 		projectMenu()
-		viewMenu(windows)
+		viewMenu(windows, components)
         componentMenu()
 		Slab.EndMainMenuBar()
 	end
