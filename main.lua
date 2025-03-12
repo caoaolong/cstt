@@ -13,7 +13,14 @@ function love.load()
     -- 加载字体
     local font = love.graphics.newFont("assets/Deng.ttf", 16)
     -- 初始化Slab并设置字体
-    Slab.Initialize()
+    Slab.Initialize({
+        DisplayFlags = {
+            NoTitleBar = false,
+            NoResize = true,
+            NoScrollbar = true,
+            NoCollapse = true
+        }
+    })
     Slab.PushFont(font)
     
     -- 创建网格实例
@@ -23,10 +30,10 @@ function love.load()
 end
 
 function love.update(dt)
-    -- 更新Slab
+    -- 更新Slab（必须在draw中调用）
     Slab.Update(dt)
-    -- 更新菜单
-    menu:update()
+    -- 更新菜单中的节点
+    menu:update(dt)
 end
 
 function love.wheelmoved(x, y)
@@ -36,14 +43,33 @@ end
 function love.draw()
     -- 绘制网格
     grid:draw()
-
-    -- 绘制Slab GUI
+    -- 绘制节点
+    menu:draw()
+    
+    -- 绘制GUI
+    menu:drawGUI()
+    
+    -- 绘制Slab（必须在所有GUI操作之后调用）
     Slab.Draw()
+end
+
+function love.mousepressed(x, y, button)
+    menu:mousepressed(x, y, button)
+end
+
+function love.mousereleased(x, y, button)
+    menu:mousereleased(x, y, button)
 end
 
 -- 添加鼠标拖动功能
 function love.mousemoved(x, y, dx, dy, istouch)
-    if love.mouse.isDown(1) then  -- 按住鼠标左键拖动
+    -- 检查是否有节点正在拖动
+    if menu:isDraggingNode() then
+        return  -- 如果有节点在拖动，不处理网格平移
+    end
+    
+    -- 否则处理网格平移
+    if love.mouse.isDown(1) then
         grid:pan(dx, dy)
     end
 end
