@@ -29,15 +29,26 @@ function love.load()
     menu = Menu.new(grid)
 end
 
+-- 处理窗口大小改变事件
+function love.resize(w, h)
+    -- 通知菜单窗口大小改变
+    if menu then
+        menu:onResize(w, h)
+    end
+end
+
 function love.update(dt)
-    -- 更新Slab（必须在draw中调用）
+    -- 更新Slab
     Slab.Update(dt)
     -- 更新菜单中的节点
     menu:update(dt)
 end
 
 function love.wheelmoved(x, y)
-    grid:zoom(y)
+    -- 只有在按住左Ctrl键时才允许缩放网格
+    if love.keyboard.isDown('lctrl') then
+        grid:zoom(y)
+    end
 end
 
 function love.draw()
@@ -45,11 +56,9 @@ function love.draw()
     grid:draw()
     -- 绘制节点
     menu:draw()
-    
     -- 绘制GUI
     menu:drawGUI()
-    
-    -- 绘制Slab（必须在所有GUI操作之后调用）
+    -- 绘制Slab
     Slab.Draw()
 end
 
@@ -68,8 +77,8 @@ function love.mousemoved(x, y, dx, dy, istouch)
         return  -- 如果有节点在拖动，不处理网格平移
     end
     
-    -- 否则处理网格平移
-    if love.mouse.isDown(1) then
+    -- 只有在按住左Ctrl键和鼠标左键时才允许平移网格
+    if love.keyboard.isDown('lctrl') and love.mouse.isDown(1) then
         grid:pan(dx, dy)
     end
 end
